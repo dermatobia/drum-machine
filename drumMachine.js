@@ -1,4 +1,5 @@
 const TYPES = {
+  TIMER: 'timer',
   KICK: 'kick',
   SNARE: 'snare',
   OPEN_HAT: 'open-hat',
@@ -6,15 +7,14 @@ const TYPES = {
 }
 
 const MAP_DISPLAY = {
-  // activeDot: '&#8226;',
-  timer: '&nbsp;',
+  [TYPES.TIMER]: '&nbsp;',
   [TYPES.KICK]: 'Kick',
   [TYPES.SNARE]: 'Snare',
   [TYPES.OPEN_HAT]: 'Open Hat',
   [TYPES.CLOSED_HAT]: 'Closed Hat'
 };
 
-class SoundType {
+class StepSequencer {
   constructor(type, activeStepIds = []) {
     this.type = type;
     this.activeStepIds = activeStepIds;
@@ -34,10 +34,17 @@ class SoundType {
 
     // Append template clone to parent container and add title.
     this.stepWrapper.appendChild(this.stepTemplate.content.cloneNode(true));
-    this.stepWrapper.firstElementChild.innerText = MAP_DISPLAY[this.type];
+    this.stepWrapper.firstElementChild.innerHTML = MAP_DISPLAY[this.type];
     this.stepElements = this.stepWrapper.querySelectorAll('.step');
-    console.log('type', this.type);
-    this.activeStepIds.forEach(id => this.stepElements[id].innerHTML = dotHtmlCode);
+
+    if (this.type !== TYPES.TIMER) {
+      this.activeStepIds.forEach(id => this.stepElements[id].innerHTML = dotHtmlCode);
+    } else {
+      Array.from(this.stepElements).forEach((item, index) => {
+        item.innerText = index + 1;
+        item.classList.remove('box');
+      });
+    }
   }
 
   startTempoAnimation() {
@@ -77,15 +84,17 @@ let arr1 = [1, 3, 5, 7, 9, 11, 13, 15];
 let arr2 = [0, 2, 4, 6, 8, 10, 12, 14];
 let arr3 = [3, 7, 11, 15];
 
-let kick = new SoundType(TYPES.KICK, arr1);
-let snare = new SoundType(TYPES.SNARE, arr2);
-let openHat = new SoundType(TYPES.OPEN_HAT, arr3);
-let closedHat = new SoundType(TYPES.CLOSED_HAT, arr0);
+let timer = new StepSequencer(TYPES.TIMER);
+let kick = new StepSequencer(TYPES.KICK, arr1);
+let snare = new StepSequencer(TYPES.SNARE, arr2);
+let openHat = new StepSequencer(TYPES.OPEN_HAT, arr3);
+let closedHat = new StepSequencer(TYPES.CLOSED_HAT, arr0);
 
 let stopBtn = document.querySelector('.stop.btn');
 let playBtn = document.querySelector('.play.btn');
 
 function start() {
+  timer.startTempoAnimation();
   kick.startTempoAnimation();
   snare.startTempoAnimation();
   openHat.startTempoAnimation();
@@ -93,6 +102,7 @@ function start() {
 }
 
 function stop() {
+  timer.stopTempoAnimation();
   kick.stopTempoAnimation();
   snare.stopTempoAnimation();
   openHat.stopTempoAnimation();
