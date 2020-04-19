@@ -40,6 +40,18 @@ class StepSequencer {
     this.activeStepIds.forEach(id => this.stepElements[id].innerHTML = dotHtmlCode);
   }
 
+  changeTempo(newTempo) {
+    this.tempo = newTempo;
+  }
+
+  changeSequence(newPattern) {
+    this.activeStepIds = newPattern;
+    // clear dots
+    Array.from(this.stepElements).forEach(item => item.innerHTML = '');
+    // re-populate dots
+    this.populateSteps();
+  }
+
   startTempoAnimation() {
     // don't do anything if there is existing animation in progress
     if (this.intervalId) return;
@@ -82,43 +94,77 @@ class Timer extends StepSequencer {
   }
 }
 
-let arr0 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-let arr1 = [1, 3, 5, 7, 9, 11, 13, 15];
-let arr2 = [0, 2, 4, 6, 8, 10, 12, 14];
-let arr3 = [3, 7, 11, 15];
-let tempo = 60;
+// ===============
+const presetSeqs = [
+  {
+    kick: [0, 4, 8, 12],
+    snare: [4, 12],
+    openHat: [2, 6, 10, 14],
+    closedHat: [0, 4, 8, 12]
+  },
+  {
+    kick: [0, 10],
+    snare: [4, 12],
+    openHat: [0, 2, 4, 5, 8, 9, 10, 11, 13],
+    closedHat: [7, 15]
+  },
+  {
+    kick: [0, 3, 7, 8, 10, 15],
+    snare: [4, 11],
+    openHat: [0, 2, 4, 6, 8, 10, 12, 14],
+    closedHat: [0, 4, 8, 12]
+  }
+];
 
-let timer = new Timer(TYPES.TIMER, tempo);
-let kick = new StepSequencer(TYPES.KICK, tempo, arr1);
-let snare = new StepSequencer(TYPES.SNARE, tempo, arr2);
-let openHat = new StepSequencer(TYPES.OPEN_HAT, tempo, arr3);
-let closedHat = new StepSequencer(TYPES.CLOSED_HAT, tempo, arr0);
+// ==== DOM Elements ====
+const stopBtn = document.querySelector('.stop.btn');
+const playBtn = document.querySelector('.play.btn');
+const tempoInput = document.querySelector('.tempo-input');
+const sequenceDropdown = document.querySelector('.sequence');
 
-let stopBtn = document.querySelector('.stop.btn');
-let playBtn = document.querySelector('.play.btn');
+// ==== State ====
+let tempo = tempoInput.value;
+let activeDropdownId = sequenceDropdown.value;
 
-function start() {
-  timer.startTempoAnimation();
-  kick.startTempoAnimation();
-  snare.startTempoAnimation();
-  openHat.startTempoAnimation();
-  closedHat.startTempoAnimation();
+// ==== Components ====
+const sequencers = {
+  timer: new Timer(TYPES.TIMER, tempo),
+  kick: new StepSequencer(TYPES.KICK, tempo, presetSeqs[activeDropdownId].kick),
+  snare: new StepSequencer(TYPES.SNARE, tempo, presetSeqs[activeDropdownId].snare),
+  openHat: new StepSequencer(TYPES.OPEN_HAT, tempo, presetSeqs[activeDropdownId].openHat),
+  closedHat: new StepSequencer(TYPES.CLOSED_HAT, tempo, presetSeqs[activeDropdownId].closedHat)
+};
+
+// ==== Event Handlers ====
+function onStart() {
+  tempoInput.disabled = true;
+
+  for (key in sequencers) {
+    let seq = sequencers[key];
+    seq.changeTempo(tempo);
+    seq.startTempoAnimation();
+  }
 }
 
-function stop() {
-  timer.stopTempoAnimation();
-  kick.stopTempoAnimation();
-  snare.stopTempoAnimation();
-  openHat.stopTempoAnimation();
-  closedHat.stopTempoAnimation();
+function onStop() {
+  tempoInput.disabled = false;
+
+  for (key in sequencers) {
+    sequencers[key].stopTempoAnimation();
+  }
 }
 
-stopBtn.addEventListener('click', (e) => {
-  console.log('stop btn click', e);
-  stop();
-})
+function onSeqDropdownChange(e) {
+  activeDropdownId = e.target.value;
 
-playBtn.addEventListener('click', (e) => {
-  console.log('play btn click', e);
-  start();
-})
+  for (key in sequencers) {
+    let seq = sequencers[key];
+    if (key !== TYPES.TIMER) seq.changeSequence(presetSeqs[activeDropdownId][key]);
+  }
+}
+
+// ==== Adding Event Listeners ====
+stopBtn.addEventListener('click', onStop.bind(this));
+playBtn.addEventListener('click', onStart.bind(this));
+tempoInput.addEventListener('change', e => tempo = e.target.value);
+sequenceDropdown.addEventListener('change', e => onSeqDropdownChange(e));

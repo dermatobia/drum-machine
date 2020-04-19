@@ -36,6 +36,7 @@ body{
 
 .step {
   display: inline-block;
+  margin: 0 2px;
   width: 40px;
   font-size: 20px;
   font-weight: bold;
@@ -50,4 +51,9 @@ body{
 
 .highlight {
   color: red;
+}
+
+.tempo-input[disabled] {
+  opacity: .5;
+  background-color: lightgrey;
 }
