@@ -6,30 +6,41 @@
     <link rel="stylesheet" href="drumMachine.css">
     <script type="text/javascript" src="drumMachine.js" defer></script>
   </head>
+
   <body>
-    <nav class="navigation">
-      <h1 class="heading">JS-808</h1>
-      <nav class="controls">
-        <button class="stop btn">Stop</button>
-        <button class="play btn">Play</button>
-        <label for="bpm">
-          <input id="bpm" class="tempo-input" type="text" value=128 />
-          BPM
-        </label>
-        <select class="sequence">
-          <option value="0">Sequence 1</option>
-          <option value="1">Sequence 2</option>
-          <option value="2">Sequence 3</option>
-        </select>
+    <div class="drum-machine">
+      <nav class="navigation">
+        <h1 class="heading">JS-808</h1>
+        <nav class="controls">
+          <button class="stop btn">Stop</button>
+          <button class="play btn">Play</button>
+          <label for="bpm">
+            <input
+              id="bpm"
+              class="tempo-input"
+              type="number"
+              value=128
+              min="1"
+              max="999"
+            />
+            <strong>BPM</strong>
+          </label>
+          <select class="sequence">
+            <option value="0">Sequence 1</option>
+            <option value="1">Sequence 2</option>
+            <option value="2">Sequence 3</option>
+          </select>
+        </nav>
       </nav>
-    </nav>
 
-    <div class="step-wrapper timer"></div>
-    <div class="step-wrapper kick"></div>
-    <div class="step-wrapper snare"></div>
-    <div class="step-wrapper open-hat"></div>
-    <div class="step-wrapper closed-hat"></div>
+      <div class="step-wrapper timer"></div>
+      <div class="step-wrapper kick"></div>
+      <div class="step-wrapper snare"></div>
+      <div class="step-wrapper open-hat"></div>
+      <div class="step-wrapper closed-hat"></div>
+    </div>
 
+    <!-- Template for Step Sequencer -->
     <template id="steps-template">
       <span class="type"></span>
       <span class="step box"></span>
